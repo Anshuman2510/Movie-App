@@ -1,37 +1,44 @@
 import React, { useState, useEffect } from 'react'
+import "./Genre.css"
 function Genre(props) {
-  const [isLoaded, setLoaded] = useState(true);
-  const [content, setContent] = useState([]);
-  const sendGenre = (e) => {
-    console.log("genre : " + e.target.textContent)
-    props.setGlobalGenre(e.target.textContent);
-  }
-  // so i will run only one time after first execution of return statement
-    // useeffect -> outer function, async function  
-  useEffect(function () {
-    (async function () {
-      // fetch is inbuilt feature of browser that makes the request to get data -> promise based
-      let response = await fetch('https://react-backend101.herokuapp.com/genres');
-      response = await response.json();
-      // console.log(response); 
-      setLoaded(false);
-      setContent(response);
-    })();
+  
+  const [toogle,setToogle]=useState(false);
+  const [id,setId]=useState(null);
+  const sendGenre = (text,id) => {
+    console.log("genreName : " + text);
+    setId(null);
+    props.setGlobalGenre(text,id);
   }
 
-    , [])
+  const ToggleAllGenre=(text,id)=>{
+    console.log(text);
+    sendGenre(text,id);
+    setToogle(false);
+    setId(id);
+  }
+
+  const ChangeGenre=(e)=>{
+
+     const index=e.target.selectedIndex;
+     const el = e.target.childNodes[index];
+     const optionId =  el.getAttribute('id'); 
+     sendGenre(e.target.value,optionId);
+     setToogle(false);
+     setId(optionId);
+  }
+  
   return (
-    <div className="Genre">
-      <div className="
-      mr-6 border-2 w-40 text-center h-10 font-bold"
-        onClick={sendGenre}>All Genre</div>
-      {isLoaded == true ?
+    <>
+    <div className="Genre hidden xl:block lg:block md:block sm:block">
+      <div className={toogle && id==null?"mr-6 border-2 w-40 text-center h-10 font-bold colour":"mr-6 border-2 w-40 text-center h-10 font-bold"}
+        onClick={(e)=>{sendGenre(e.target.textContent,props.content.genres.id);setToogle(!toogle)}}>All Genre</div>
+      {props.isLoaded == true ?
         <div className="font-bold"> Loading...</div >
-        : content.genres.map(function (genre) {
+        : props.content?.genres.map(function (genre,idx) {
           return (< div
             key={genre._id}
-            className="mr-6 border-2 w-40 text-center h-10 border-t-0 font-bold"
-            onClick={sendGenre}
+            className={id==genre.id?"mr-6 border-2 w-40 text-center h-10 font-bold colour":"mr-6 border-2 w-40 text-center h-10 font-bold"}
+            onClick={(e)=>{ToggleAllGenre(e.target.textContent,genre.id)}}
           >
             {genre.name}</div>
           )
@@ -39,6 +46,34 @@ function Genre(props) {
         )
       }
     </div >
+       
+    <div className="Genre block mb-5 flex justify-center xl:hidden lg:hidden md:hidden sm:hidden">
+    {/* <select>
+      <option className={toogle && id==null?"mr-6 border-2 w-40 text-center h-10 font-bold colour":"mr-6 border-2 w-40 text-center h-10 font-bold"}
+        onClick={(e)=>{sendGenre(e.target.textContent,props.content.genres.id);setToogle(!toogle)}}>All Genre</option>
+    </select> */}
+      {props.isLoaded == true ?
+        <div className="font-bold"> Loading...</div >
+        :
+        <select onChange={(e)=>{ChangeGenre(e)}}>
+          {
+            props.content?.genres.slice(0,12).map(function (genre,idx) {
+              return (< option
+                key={genre._id}
+                className={id==genre.id?" colour":""}
+                id={genre.id}
+                value={genre.name}
+              >
+                {genre.name}</option>
+              )
+            }
+         
+            )
+          }
+        </select>
+      }
+    </div >
+    </>
   )
 }
 export default Genre

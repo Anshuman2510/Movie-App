@@ -4,23 +4,22 @@ import MoviesTable from './MoviesTable';
 import Pagination from "./Pagination";
 import { useEffect } from 'react';
 function Movies(props) {
-  let { cPage, setcPage } = props;
+  let {cGenre, genreId,cPage, setcPage, Genrecontent,setGlobalGenre } = props;
   let [searchText, setSearchText] = React.useState("");
   let [moviesCount, setCount] = React.useState(4);
   // *******************Movies table get *********************************************
   const [content, setContent] = React.useState([]);
   const [isLoaded, setLoaded] = React.useState(true);
-
+  
   useEffect(function () {
-    async function fn() {
+    (async function()  {
       // fetch is inbuilt feature of browser that makes the request to get data -> promise based
-      let response = await fetch('https://react-backend101.herokuapp.com/movies');
+      let response = await fetch("https://api.themoviedb.org/3/movie/popular?api_key=c09b0a80bcc417e8db833861cab09e98&language=en-US&page=1");
       response = await response.json();
       // console.log(response); 
       setLoaded(false);
-      setContent(response);
-    }
-    fn();
+      setContent(response.results);
+    })()
   }, []);
   // ****************************************************************
   // ****************************************************************
@@ -34,38 +33,51 @@ function Movies(props) {
     setCount(moviesCount);
     setcPage(1);
   }
-  // *******************Movies table************
+
+  //  *******************Movies table************
   let filteredContent;
-  let totalpagesWaliMovies;
-  if (content.movies) {
-    filteredContent = content.movies;
-    // **************searching*********
-    if (props.searchText != "") {
-      filteredContent = content.movies.filter((movie) => {
-        let lowerCaseTitle = movie.title.toLowerCase();
-        let lowercaseSearchText = searchText.toLowerCase();
-        // movie (title) -> lowercase  
-        return lowerCaseTitle.includes(lowercaseSearchText);
-      });
+  let totalpagesMovies;
+  
+  if(content)
+   {
+      
+      filteredContent=content;
+      //   // **************searching*********
+      if(searchText!=="")
+       {
+         filteredContent = content.filter((movie) => {
+                let lowerCaseTitle = movie.title.toLowerCase();
+                let lowercaseSearchText = searchText.toLowerCase();
+                // movie (title) -> lowercase  
+                return lowerCaseTitle.includes(lowercaseSearchText);
+              });
+       }
+       // ************genre****** -> grouping
+      if(cGenre!=="")
+      {
+        console.log("cGenre",cGenre);
+         
+        filteredContent = filteredContent.filter((movie)=>Number(movie.genre_ids[0])=== Number(genreId))
+              console.log("movies table ", filteredContent)
+          
+                
+           if(filteredContent.length==0)
+           {
+               setGlobalGenre("All Genre","")
+           }
+      }
+
+        totalpagesMovies = filteredContent;
+  //   // **************number of elems logic(Pagination)*********** 
+        let sidx = (cPage - 1) * moviesCount;
+        let eidx = sidx + moviesCount;
+        filteredContent = filteredContent.slice(sidx, eidx);
+
     }
-    // ************genre****** -> grouping 
-    if (props.cGenre != "") {
-      filteredContent = filteredContent.filter(
-        function (movie) {
-          console.log("movies table ", movie.genre.name);
-          return movie.genre.name.trim() == props.cGenre.trim();
-        })
-      console.log("movies table ", filteredContent)
-    }
-    totalpagesWaliMovies = filteredContent;
-    // **************number of elems logic(Pagination)*********** 
-    let sidx = (cPage - 1) * moviesCount;
-    let eidx = sidx + moviesCount;
-    filteredContent = filteredContent.slice(sidx, eidx);
-  }
+  // console.log("content ",content);
   // ***********************movies table **************
 
-  // console.log("movies : " + props.cGenre)
+  
   return (<div >
     <InputBox setGlobalSearchText
       ={setGlobalSearchText}
@@ -79,10 +91,11 @@ function Movies(props) {
       isLoaded={isLoaded}
       setContent={setContent}
       cPage={cPage}
+      Genrecontent={Genrecontent}
     ></MoviesTable>
     <Pagination
       moviesCount={moviesCount}
-      totalpagesWaliMovies={totalpagesWaliMovies}
+      totalpagesMovies={totalpagesMovies}
       cPage={cPage}
       setcPage={setcPage}
     ></Pagination>
