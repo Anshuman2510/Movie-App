@@ -9,9 +9,6 @@ function NavBar() {
      inline-block 
      mr-4
      ">IMDB</Link>
-      <Link to="/login" className=" font-medium 
-     text-blue-500 
-      text-xl hover:text-blue-400" >Login</Link>
     </nav>
   )
 }

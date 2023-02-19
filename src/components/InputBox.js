@@ -17,12 +17,9 @@ function InputBox(props) {
     <>
       {/* i will work on new later*/}
     
-        <Link to="/new"
-        className="bg-blue-500 hover:bg-blue-700 text-white 
-        font-bold py-2 px-4 rounded"
-        >New</Link>
+        
       <input className="border rounded py-1 px-1 mx-2 font-bold"
-        type="text" value={searchText} onChange={handleText}></input>
+        type="text" value={searchText} onChange={handleText} placeholder="search movies"></input>
       <input type="number" className="border rounded py-1 px-1 mx-2 font-bold"
         value={numberOfItems} onChange={handleCount}></input>
     </>
